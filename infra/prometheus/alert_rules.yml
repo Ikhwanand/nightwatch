@@ -1,0 +1,35 @@
+groups:
+  - name: nightwatch_alert_rules
+    rules:
+      # Peringatan jika penggunaan RAM aplikasi melebihi 90%
+      - alert: HighMemoryUsage
+        expr: sample_app_memory_usage_percent > 90
+        for: 5s
+        labels:
+          severity: critical
+          service: api-server
+        annotations:
+          summary: "High memory usage detected on {{ $labels.instance }}"
+          description: "Memory usage has exceeded 90% (current value: {{ $value }}%). Suspected memory leak or buffer exhaustion."
+
+      # Peringatan jika persentase HTTP 5xx error rate melonjak di atas 10%
+      - alert: HighErrorRate
+        expr: (rate(sample_app_requests_total{status=~"5.."}[1m]) / rate(sample_app_requests_total[1m])) * 100 > 10
+        for: 5s
+        labels:
+          severity: critical
+          service: api-server
+        annotations:
+          summary: "High HTTP 5xx error rate detected"
+          description: "HTTP 5xx error rate is above 10% on {{ $labels.instance }}."
+
+      # Peringatan jika aplikasi target mati/crash (OOM kill)
+      - alert: ServiceDown
+        expr: up{job="sample-app"} == 0
+        for: 5s
+        labels:
+          severity: critical
+          service: api-server
+        annotations:
+          summary: "Target service sample-app is DOWN"
+          description: "Prometheus failed to scrape sample-app:8000. Service might be crashing or OOM killed."

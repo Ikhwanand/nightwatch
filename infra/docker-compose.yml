@@ -1,0 +1,79 @@
+services:
+  # 1. PostgreSQL with pgvector extension (Storage, Memory, Runbooks RAG)
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: nightwatch-postgres
+    ports:
+      - "5532:5432"
+    environment:
+      POSTGRES_DB: nightwatch
+      POSTGRES_USER: nightwatch
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nightwatch -d nightwatch"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # 2. Prometheus (Scrapes metrics every 5 seconds)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: nightwatch-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/alert_rules.yml:/etc/prometheus/alert_rules.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    depends_on:
+      - sample-app
+
+  # 3. Alertmanager (Routes alerts via webhook to Nightwatch API)
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: nightwatch-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # 4. Grafana Loki (Log Aggregation)
+  loki:
+    image: grafana/loki:latest
+    container_name: nightwatch-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/local-config.yaml:ro
+    command: -config.file=/etc/loki/local-config.yaml
+
+  # 5. Grafana (Visualization Dashboard)
+  grafana:
+    image: grafana/grafana:latest
+    container_name: nightwatch-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    depends_on:
+      - prometheus
+      - loki
+
+  # 6. Sample Target Application (The monitored microservice)
+  sample-app:
+    build: ./sample-app
+    container_name: nightwatch-sample-app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

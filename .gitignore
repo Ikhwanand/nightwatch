@@ -1,0 +1,102 @@
+# ==============================================================================
+# Nightwatch Git Ignore Configuration
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# Secrets & Environment Variables (CRITICAL)
+# ------------------------------------------------------------------------------
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+
+# ------------------------------------------------------------------------------
+# Python & Virtual Environments (Backend)
+# ------------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.uv/
+
+# Testing & Type Checking
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+.hypothesis/
+
+# Packaging & Distribution
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# ------------------------------------------------------------------------------
+# Node.js & React Dashboard (Frontend)
+# ------------------------------------------------------------------------------
+node_modules/
+dashboard/node_modules/
+dashboard/build/
+dashboard/.react-router/
+.npm/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ------------------------------------------------------------------------------
+# Docker & Infrastructure Persistence
+# ------------------------------------------------------------------------------
+infra/pgdata/
+pgdata/
+*.dump
+*.sql.gz
+
+# ------------------------------------------------------------------------------
+# Operating System & IDE Files
+# ------------------------------------------------------------------------------
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDEs & Editors
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# ------------------------------------------------------------------------------
+# Local Scratches & Analysis Dumps
+# ------------------------------------------------------------------------------
+graphify-out/
+*.log
+.agents/
+skills-lock.json
+docs/
