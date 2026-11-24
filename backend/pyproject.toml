@@ -27,6 +27,7 @@ dependencies = [
     "sentence-transformers>=6.3.0",
     "slack-sdk>=3.48.0",
     "sqlalchemy>=2.1.9",
+    "greenlet>=3.1.1",
     "structlog>=26.1.0",
 ]
 
@@ -36,3 +37,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/nightwatch"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "strict"
+asyncio_default_fixture_loop_scope = "function"
