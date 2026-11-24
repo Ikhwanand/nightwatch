@@ -25,21 +25,22 @@ flowchart TD
         AM -->|HTTP Webhook| WH["FastAPI Ingress (/api/v1/alerts/webhook)"]
         WH -->|Async Dispatch| IC["Incident Commander Team (Leader)"]
         
-        IC <--> TA["Triage Agent (Severity P1-P4)"]
-        IC <--> LA["Log Analyst (Loki LogQL)"]
-        IC <--> MA["Metrics Analyst (PromQL)"]
-        IC <--> CI["Change Investigator (Git/Deploy History)"]
-        IC <--> RA["Remediation Agent (SOP Runbooks)"]
+        IC -->|triage| TA["Triage Agent (Severity P1-P4)"]
+        IC -->|query logs| LA["Log Analyst (Loki LogQL)"]
+        IC -->|query metrics| MA["Metrics Analyst (PromQL)"]
+        IC -->|query deploy history| CI["Change Investigator (Git/Deploy History)"]
+        IC -->|match runbooks| RA["Remediation Agent (SOP Runbooks)"]
         
-        IC <--> RAG[("PgVector SRE Runbooks")]
-        IC <--> DB[("PostgreSQL Memory & History")]
+        RA -->|search embeddings| RAG[("PgVector SRE Runbooks")]
+        IC -->|session memory| DB[("PostgreSQL Memory and History")]
     end
 
-    subgraph Operations ["SRE Operations & Control"]
+    subgraph Operations ["SRE Operations and Control"]
         IC --> HITL{"Human-in-the-Loop Gateway"}
-        HITL -->|Review & Approve| UI["Mission Control Dashboard (React 19)"]
-        UI -->|POST /approvals/{id}/approve| EXEC["Allowlisted Container Remediation"]
+        HITL -->|Review and Approve| UI["Mission Control Dashboard (React 19)"]
+        UI -->|POST /approvals/:id/approve| EXEC["Allowlisted Container Remediation"]
         EXEC --> AUDIT[("Immutable Audit Trail")]
+        IC -.->|Incident Alerts| TG["Telegram Notifications"]
     end
 ```
 
